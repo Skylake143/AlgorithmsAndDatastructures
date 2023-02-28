@@ -79,7 +79,7 @@ class AdjacencyList(object):
 
         return edges
 
-        raise NotImplementedError('Function not implemented yet')
+
 
     @staticmethod
     def count_odd_neighbours_undirected_graph(
