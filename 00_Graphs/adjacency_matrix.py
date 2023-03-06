@@ -13,8 +13,8 @@ class AdjacencyMatrix(object):
         and j
         :return: int, the number of vertices
         """
-        
-        # TODO: Implement this function
+        count_vertices = np.size(adj_matrix[0])
+        return count_vertices
 
         raise NotImplementedError('Function not implemented yet')
 
@@ -28,8 +28,12 @@ class AdjacencyMatrix(object):
         and j
         :return: int, the number of edges
         """
+        vertices = np.where(adj_matrix!=0)
+        edges = len(vertices[0])
+        edges = int(edges/2)
+
+        return edges
         
-        # TODO: Implement this function
 
         raise NotImplementedError('Function not implemented yet')
 
@@ -43,8 +47,9 @@ class AdjacencyMatrix(object):
         and j
         :return: int, the number of vertices
         """
-        
-        # TODO: Implement this function
+
+        count_vertices = np.size(adj_matrix[0])
+        return count_vertices 
 
         raise NotImplementedError('Function not implemented yet')
 
@@ -59,7 +64,10 @@ class AdjacencyMatrix(object):
         :return: int, the number of edges
         """
         
-        # TODO: Implement this function
+        vertices = np.where(adj_matrix!=0)
+        edges = len(vertices[0])
+
+        return edges
 
         raise NotImplementedError('Function not implemented yet')
 
@@ -74,8 +82,10 @@ class AdjacencyMatrix(object):
         :return: int, the number of vertices that have an odd number of
         neighbours
         """
-        
-        # TODO: Implement this function
+        odd_neighbours=0
+        for row in adj_matrix: 
+            if len(np.where(row!=0)[0])%2==1: odd_neighbours+=1
+        return odd_neighbours
 
         raise NotImplementedError('Function not implemented yet')
 
@@ -94,6 +104,9 @@ class AdjacencyMatrix(object):
         :return: numpy array, representing the inverted graph
         """
         
-        # TODO: Implement this function
+        transpose = np.transpose(adj_matrix)
+
+        return transpose
+
 
         raise NotImplementedError('Function not implemented yet')

@@ -55,7 +55,6 @@ class AdjacencyList(object):
         """
         
         number_of_vertices = len(adj_list.keys())
-        print(number_of_vertices)
         return number_of_vertices
 
 
@@ -118,14 +117,11 @@ class AdjacencyList(object):
         """
 
         #nxn zeros array
-        #
-        #
         matrixlength=len(adj_list.keys())
         adjacentarray = np.zeros((matrixlength, matrixlength))
         for key in adj_list.keys():
             edges = adj_list.get(key)
             adjacentarray[key,edges]=1
-            adjacentarray[edges,key]=1
 
         return adjacentarray
 
