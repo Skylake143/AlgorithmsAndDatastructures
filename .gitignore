@@ -1,0 +1,10 @@
+.DS_Store
+.vscode/settings.json
+00_Graphs/__pycache__/adjacency_list.cpython-310.pyc
+00_Graphs/__pycache__/adjacency_matrix.cpython-310.pyc
+00_Graphs/__pycache__/test_adjacency_matrix_list.cpython-310.pyc
+00_Trees_v4/__pycache__/binary_tree_visualization.cpython-310.pyc
+00_Trees_v4/__pycache__/binary_tree.cpython-310.pyc
+00_Trees_v4/__pycache__/node.cpython-310.pyc
+00_Trees_v4/__pycache__/test_binary_tree.cpython-310.pyc
+Asignment1/.DS_Store
