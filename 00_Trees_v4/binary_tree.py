@@ -235,6 +235,7 @@ def remove(root: Node, value: int) -> typing.Tuple[bool, typing.Optional[Node]]:
     height_right=0 if child.right is None else get_height(child.right)
 
     #Deleting the child 
+    #TODO: make it less complicated
     if height_left >= height_right:
         old_child = child
         child=child.left
@@ -254,7 +255,9 @@ def remove(root: Node, value: int) -> typing.Tuple[bool, typing.Optional[Node]]:
 
     #Assigning new child to tree
     if parent is None:
-        root=child
+        root.info=child.info
+        root.left=child.left
+        root.right =child.right
         return (True, root)
     if parent.left is not None and parent.left.info == value:
         parent.left=child

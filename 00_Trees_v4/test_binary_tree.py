@@ -148,7 +148,8 @@ class TestTreeFunctions(unittest.TestCase):
         r = Node(6, None, None)
         rp = Node(5, l,r)
         root = Node(3, p, rp)
-
+        
+        #Why does this work, root not assigned to variable thus it should not work.
         remove(root, value=3)
         
         # Solution tree root2 (of removing value 3)
