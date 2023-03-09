@@ -134,9 +134,28 @@ class CSP:
 
         :param empty_locations: list of empty locations that still need a value from self.numbers 
         """
-        
-        
+        #Checks if grid is already sufficiently filled
+        if len(empty_locations)==0: 
+            return self.grid
 
+        #Sort numbers
+        sorted_numbers = sorted(self.numbers)
+
+        location = empty_locations[0]
+        #Get which groups contain location
+        affected_indices = self.cell_to_groups.get(location)
+
+
+        for tryout in sorted_numbers: 
+            self.grid[location[0]][location[1]] = tryout
+            if(self.satisfies_group_constraints(affected_indices)):
+                if(self.search(empty_locations[1:]) is None): continue
+                return self.grid
+        
+        self.grid[location[0]][location[1]] = 0
+        return None
+       
+        
         
 
         raise NotImplementedError()
