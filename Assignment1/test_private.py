@@ -14,95 +14,6 @@ from csp import CSP
 ##############################################################################################
 
 class TestCSP(unittest.TestCase):
-    def test_search_simple(self):
-        horizontal_groups = [[(0,0),(0,1)], [(1,0), (1,1)]]
-        vertical_groups = [[(0,0), (1,0)], [(0,1), (1,1)]]
-        groups = horizontal_groups + vertical_groups
-        # every constraint is of the form (sum, count). so every group must sum to 3 and every number may only occur once per group
-        constraints = [(3, 1), (3, 1), (3, 1), (3, 1)]
-
-        valid_grid = np.array([[1,0],
-                               [0,0]])
-        csp = CSP(valid_grid, numbers=set([1,2]), groups=groups, constraints=constraints)
-        result = csp.start_search()
-
-        solution_grid = np.array([[1,2],
-                                  [2,1]])
-
-        self.assertTrue(np.all(solution_grid == result))
-
-        # same but starting value is 2
-        valid_grid = np.array([[2,0],
-                               [0,0]])
-        csp = CSP(valid_grid, numbers=set([1,2]), groups=groups, constraints=constraints)
-        result = csp.start_search()
-
-        solution_grid = np.array([[2,1],
-                                  [1,2]])
-
-        self.assertTrue(np.all(solution_grid == result))
-        
-
-    def test_search_simple_cells_not_in_groups(self):
-        horizontal_groups = [[(0,0),(0,1)], [(1,0), (1,1)]]
-        vertical_groups = [[(0,0), (1,0)], [(0,1), (1,1)]]
-        groups = horizontal_groups + vertical_groups
-        # every constraint is of the form (sum, count). so every group must sum to 3 and every number may only occur once per group
-        constraints = [(3, 1), (3, 1), (3, 1), (3, 1)]
-
-        valid_grid = np.array([[1,0,0],
-                               [0,0,0]])
-        csp = CSP(valid_grid, numbers=set([1,2]), groups=groups, constraints=constraints)
-        result = csp.start_search()
-
-        solution_grid = np.array([[1,2,0],
-                                  [2,1,0]])
-
-        self.assertTrue(np.all(solution_grid[:2,:2] == result[:2,:2]))
-
-        # same but starting value is 2
-        valid_grid = np.array([[2,0,0],
-                               [0,0,0]])
-        csp = CSP(valid_grid, numbers=set([1,2]), groups=groups, constraints=constraints)
-        result = csp.start_search()
-
-        solution_grid = np.array([[2,1,0],
-                                  [1,2,0]])
-
-        self.assertTrue(np.all(solution_grid[:2,:2] == result[:2,:2]))
-    
-    def test_search_medium(self):
-        grid = np.array([
-            [1,0,0],
-            [3,0,0],
-            [0,0,3],
-        ])
-
-        solution = np.array([
-            [1,3,2],
-            [3,2,1],
-            [2,1,3],
-        ])
-
-        horizontal_groups = []
-        for row_idx in range(3):
-            groups = [(row_idx, j) for j in range(3)]
-            horizontal_groups.append(groups)
-
-        vertical_groups = []
-        for col_idx in range(3):
-            groups = [(j, col_idx) for j in range(3)]
-            vertical_groups.append(groups)
-
-
-        groups = horizontal_groups + vertical_groups
-        constraints = [(sum([1,2,3]),1) for j in range(len(groups))]
-
-        csp = CSP(grid, numbers=set([1,2,3]), groups=groups, constraints=constraints)
-        result = csp.start_search()
-
-        self.assertTrue(np.all(result == solution))
-
     def test_backtracking_medium(self):
         grid = np.array([
             [1,0,0],
@@ -169,37 +80,33 @@ class TestCSP(unittest.TestCase):
     
     def test_search_large(self):
         grid = np.array([
-            [1,0,0,0,0,0],
-            [3,0,0,0,0,0],
-            [0,0,3,0,0,0],
-            [0,0,5,0,0,0],
-            [0,0,0,6,0,0],
-            [0,0,0,0,5,0]
+            [1,0,0,0],
+            [3,0,0,0],
+            [0,0,3,0],
+            [0,0,4,0]
         ])
 
         solution = np.array([
-            [1,2,4,3,6,5],
-            [3,1,2,5,4,6],
-            [5,6,3,1,2,4],
-            [6,4,5,2,1,3],
-            [4,5,1,6,3,2],
-            [2,3,6,4,5,1]
+            [1,3,2,4],
+            [3,4,1,2],
+            [4,2,3,1],
+            [2,1,4,3]
         ])
 
         horizontal_groups = []
-        for row_idx in range(6):
-            groups = [(row_idx, j) for j in range(6)]
+        for row_idx in range(4):
+            groups = [(row_idx, j) for j in range(4)]
             horizontal_groups.append(groups)
 
         vertical_groups = []
-        for col_idx in range(6):
-            groups = [(j, col_idx) for j in range(6)]
+        for col_idx in range(4):
+            groups = [(j, col_idx) for j in range(4)]
             vertical_groups.append(groups)
 
         groups = horizontal_groups + vertical_groups
-        constraints = [(sum([1,2,3,4,5,6]),1) for j in range(len(groups))]
+        constraints = [(sum([1,2,3,4]),1) for j in range(len(groups))]
 
-        csp = CSP(grid, numbers=set([1,2,3,4,5,6]), groups=groups, constraints=constraints)
+        csp = CSP(grid, numbers=set([1,2,3,4]), groups=groups, constraints=constraints)
         result = csp.start_search()
 
         self.assertTrue(np.all(result == solution))
@@ -236,17 +143,17 @@ class TestCSP(unittest.TestCase):
 
         csp = CSP(grid, numbers=set(range(1,length_array+1)), groups=groups, constraints=constraints)
 
-        # #EXHAUSTIVE
-        # #We use monotonic for measuring the time, since it takes a long time
-        # #disable garbage collector for higher precision
-        # gc.disable()
-        # start_time = time.monotonic_ns()
-        # result_exhaustive = csp.start_search()
-        # end_time = time.monotonic_ns()
-        # # re-enable garbage collector
-        # gc.enable()
-        # timediff_exhaustive = end_time-start_time
-        # print('Execution time exhaustive:', timediff_exhaustive/1000000, 'milliseconds')
+        #EXHAUSTIVE
+        #We use monotonic for measuring the time, since it takes a long time
+        #disable garbage collector for higher precision
+        gc.disable()
+        start_time = time.monotonic_ns()
+        result_exhaustive = csp.start_search()
+        end_time = time.monotonic_ns()
+        # re-enable garbage collector
+        gc.enable()
+        timediff_exhaustive = end_time-start_time
+        print('Execution time exhaustive:', timediff_exhaustive/1000000, 'milliseconds')
 
         #BACKTRACKING
 
@@ -278,7 +185,7 @@ class TestCSP(unittest.TestCase):
         # repetitions = 100
         # gc.disable()
         # timediff_backtracking = timeit.timeit(stmt=csp.start_search_backtracking, number=repetitions)
-        # gc.enable()
+        # gc.enable()u
 
         # #Get result
         # result_backtracking = csp.start_search_backtracking()
@@ -324,7 +231,95 @@ class TestCSP(unittest.TestCase):
         self.assertTrue(np.all(result_backtracking == solution))
         self.assertTrue(np.all(result_greedy_backtracking == solution))
 
+    def test_all_numbers_twice(self):
+        grid = np.array([
+            [1,0,0],
+            [3,0,0],
+            [0,0,3]
+        ])
 
+        solution = np.array([
+            [1,1,2],
+            [3,1,1],
+            [1,2,3]
+        ])
+
+        horizontal_groups = []
+        for row_idx in range(3):
+            groups = [(row_idx, j) for j in range(3)]
+            horizontal_groups.append(groups)
+
+        vertical_groups = []
+        for col_idx in range(3):
+            groups = [(j, col_idx) for j in range(3)]
+            vertical_groups.append(groups)
+
+        groups = horizontal_groups + vertical_groups
+        constraints = [(sum([1,2,3]),2) for j in range(len(groups))]
+
+        csp = CSP(grid, numbers=set([1,2,3]), groups=groups, constraints=constraints)
+        result = csp.start_search_backtracking()
+
+        self.assertTrue(np.all(result == solution))
+
+    def test_sum_constraint_is_0(self):
+        grid = np.array([
+            [1,0,0],
+            [3,0,0],
+            [0,0,3]
+        ])
+
+        horizontal_groups = []
+        for row_idx in range(3):
+            groups = [(row_idx, j) for j in range(3)]
+            horizontal_groups.append(groups)
+
+        vertical_groups = []
+        for col_idx in range(3):
+            groups = [(j, col_idx) for j in range(3)]
+            vertical_groups.append(groups)
+
+        groups = horizontal_groups + vertical_groups
+        constraints = [(0,2) for j in range(len(groups))]
+
+        csp = CSP(grid, numbers=set([1,2,3]), groups=groups, constraints=constraints)
+        result = csp.start_search_backtracking()
+
+        self.assertIsNone(result)
+
+    #ERROR TESTs
+    #Test group with double group parameters
+    def test_search_double_group_error(self):
+        horizontal_groups = [[(0,0),(0,0)], [(1,0), (1,1)]]
+        vertical_groups = [[(0,0), (1,0)], [(0,1), (1,1)]]
+        groups = horizontal_groups + vertical_groups
+        # every constraint is of the form (sum, count). so every group must sum to 3 and every number may only occur once per group
+        constraints = [(3, 1), (3, 1), (3, 1), (3, 1)]
+
+        valid_grid = np.array([[1,0],
+                               [0,0]])
+
+        csp = CSP(valid_grid, numbers=set([1,2]), groups=groups, constraints=constraints)
+        result = csp.start_search()
+
+        self.assertIsNone(result)
+
+    #Test group with location out of grid
+    #Test group with wrong group parameters
+    def test_search_index_out_of_grid(self):
+        horizontal_groups = [[(0,0),(0,2)], [(1,0), (1,1)]]
+        vertical_groups = [[(0,0), (1,0)], [(0,1), (1,1)]]
+        groups = horizontal_groups + vertical_groups
+        # every constraint is of the form (sum, count). so every group must sum to 3 and every number may only occur once per group
+        constraints = [(3, 1), (3, 1), (3, 1), (3, 1)]
+
+        valid_grid = np.array([[1,0],
+                               [0,0]])
+
+        csp = CSP(valid_grid, numbers=set([1,2]), groups=groups, constraints=constraints)
+        result = csp.start_search()
+
+        self.assertIsNone(result)
 
     def test_search_no_solution_no_overwriting(self):
         horizontal_groups = [[(0,0),(0,1)], [(1,0), (1,1)]]

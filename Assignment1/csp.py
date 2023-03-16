@@ -116,7 +116,26 @@ class CSP:
             
         #Otherwise return True since there is no case where it outputs False
         return True
+
+    def check_errors(self): 
+
+        #Error double element in group
+        for group in self.groups:
+            dup = [x for x in group if group.count(x) > 1]
+            if len(dup) is not 0:
+                return True
+        
+        #Error group index out of grid bounds
+        for group in self.groups:
+            x_dim = np.size(self.grid,0)
+            y_dim = np.size(self.grid, 1)
+            out_of_bounds = [(x,y) for (x,y) in group if x>=x_dim or y>=y_dim]
+            if len(out_of_bounds) is not 0:
+                return True
+        
+        return False
             
+    
 
     def search(self, empty_locations: typing.List[typing.Tuple[int, int]]) -> np.ndarray:
         """
@@ -273,6 +292,8 @@ class CSP:
 
         self.fill_cell_to_groups()
         empty_locations = [(row_idx, col_idx) for row_idx in range(self.height) for col_idx in range(self.width) if self.grid[row_idx,col_idx]==0]
+        if self.check_errors() is True:
+            return None
         return self.search(empty_locations)
     
     def start_search_backtracking(self):
@@ -286,6 +307,8 @@ class CSP:
 
         self.fill_cell_to_groups()
         empty_locations = [(row_idx, col_idx) for row_idx in range(self.height) for col_idx in range(self.width) if self.grid[row_idx,col_idx]==0]
+        if self.check_errors() is True:
+            return None
         return self.search_backtracking(empty_locations)
     
     def start_search_greedy_backtracking(self):
@@ -299,4 +322,6 @@ class CSP:
 
         self.fill_cell_to_groups()
         empty_locations = [(row_idx, col_idx) for row_idx in range(self.height) for col_idx in range(self.width) if self.grid[row_idx,col_idx]==0]
+        if self.check_errors() is True:
+            return None
         return self.search_greedy_backtracking(empty_locations)
