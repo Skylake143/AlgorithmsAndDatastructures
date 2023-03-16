@@ -265,7 +265,7 @@ class CSP:
     def start_search(self):
         """
         Non-recursive function that starts the recursive search function above. It first fills the cell_to_group
-        data structure and computes the empty locations. Then, it starts the recursive search procedure. 
+        data structure and computes the empty locations. Then, it starts the recursive exhaustive search procedure. 
         The result is None if there is no solution possible. Otherwise, it returns the grid that is a solution.
 
         You do not need to change this function.
@@ -275,3 +275,28 @@ class CSP:
         empty_locations = [(row_idx, col_idx) for row_idx in range(self.height) for col_idx in range(self.width) if self.grid[row_idx,col_idx]==0]
         return self.search(empty_locations)
     
+    def start_search_backtracking(self):
+        """        
+        Non-recursive function that starts the recursive search function above. It first fills the cell_to_group
+        data structure and computes the empty locations. Then, it starts the recursive backtracking search procedure. 
+        The result is None if there is no solution possible. Otherwise, it returns the grid that is a solution.
+
+        You do not need to change this function.
+        """
+
+        self.fill_cell_to_groups()
+        empty_locations = [(row_idx, col_idx) for row_idx in range(self.height) for col_idx in range(self.width) if self.grid[row_idx,col_idx]==0]
+        return self.search_backtracking(empty_locations)
+    
+    def start_search_greedy_backtracking(self):
+        """        
+        Non-recursive function that starts the recursive search function above. It first fills the cell_to_group
+        data structure and computes the empty locations. Then, it starts the recursive backtracking search procedure. 
+        The result is None if there is no solution possible. Otherwise, it returns the grid that is a solution.
+
+        You do not need to change this function.
+        """
+
+        self.fill_cell_to_groups()
+        empty_locations = [(row_idx, col_idx) for row_idx in range(self.height) for col_idx in range(self.width) if self.grid[row_idx,col_idx]==0]
+        return self.search_greedy_backtracking(empty_locations)
