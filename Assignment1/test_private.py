@@ -156,12 +156,18 @@ class TestCSP(unittest.TestCase):
         print('Execution time exhaustive:', timediff_exhaustive/1000000, 'milliseconds')
 
         #BACKTRACKING
-
+        grid2 = np.array([
+            [1,0,0,0],
+            [3,0,0,0],
+            [0,0,3,0],
+            [0,0,4,0]
+        ])
+        csp2 = CSP(grid2, numbers=set(range(1,length_array+1)), groups=groups, constraints=constraints)
         #TIME.perf_counter_ns()
         #CPU Process time 
         gc.disable()
         start_time = time.perf_counter_ns()   
-        result_backtracking = csp.start_search_backtracking()
+        result_backtracking = csp2.start_search_backtracking()
         end_time = time.perf_counter_ns()
         gc.enable()
         timediff_backtracking = end_time-start_time
@@ -195,9 +201,17 @@ class TestCSP(unittest.TestCase):
 
 
         #Greedy backtracking 
+        grid3 = np.array([
+            [1,0,0,0],
+            [3,0,0,0],
+            [0,0,3,0],
+            [0,0,4,0]
+        ])
+        csp3 = CSP(grid3, numbers=set(range(1,length_array+1)), groups=groups, constraints=constraints)
+
         gc.disable()
         start_time = time.perf_counter_ns()        
-        result_greedy_backtracking = csp.start_search_greedy_backtracking()
+        result_greedy_backtracking = csp3.start_search_greedy_backtracking()
         end_time = time.perf_counter_ns()
         gc.disable()
         timediff_greedy_backtracking = end_time-start_time
