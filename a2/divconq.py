@@ -114,8 +114,23 @@ class IntelDevice:
         The function does not return anything. It simply fills the self.coordinate_to_location data structure with the right mapping.
         """
 
-        # TODO
-        raise NotImplementedError()
+        decoded_loc=[]
+        for i in self.enc_locations:
+            decoded_loc.append(self.decode_message(i))
+
+        coord_grid=self.coordinate_to_location
+        y=0
+        loc_index=0
+        for line in self.loc_grid:
+            x=0
+
+            for location in line:
+                coord_grid[(y,x)]= decoded_loc[loc_index]
+                loc_index+= 1
+                x+=1
+            y+=1
+
+        return coord_grid
 
     def fill_loc_grid(self):
         """
@@ -130,8 +145,23 @@ class IntelDevice:
         The function does not return anything. It simply fills the self.loc_grid data structure with the decoded codes.
         """
 
-        # TODO
-        raise NotImplementedError()
+        decoded_enc=[]
+        for i in self.enc_codes:
+            decoded_enc.append(self.decode_message(i))
+
+        grid=self.loc_grid
+        y=0
+        loc_index=0
+        for row in self.loc_grid:
+            x=0
+            for location in row:
+                grid[y][x]= decoded_enc[loc_index]
+                loc_index+= 1
+                x+=1
+            y+=1
+
+        return grid
+
 
 
     def divconq_search(self, value: int, x_from: int, x_to: int, y_from: int, y_to: int) -> typing.Tuple[int, int]:
