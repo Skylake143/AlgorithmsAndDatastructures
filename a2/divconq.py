@@ -50,26 +50,15 @@ class IntelDevice:
         Returns: the encoded message
         """
 
-        # TODO
 
-        new_word= msg
         new_word_l= []
-        for i in range(len(new_word)):
-            bin_char='{0:b}'.format(ord(new_word[i])+self.caesar_shift)
+        for i in range(len(msg)):
+            bin_char='{0:b}'.format(ord(msg[i])+self.caesar_shift)
             new_word_l.append(bin_char)
         new_word_n=" ".join(new_word_l)
 
         return new_word_n
 
-
-
-
-
-#string.replace(old, new, count)
-
-        #print(self.msg)
-        #for word
-        #return self.msg
     
     def decode_message(self, msg: str) -> str:
         """
@@ -82,11 +71,7 @@ class IntelDevice:
         Returns: the decoded message
         """
 
-        # TODO
-
-        b_list= msg
-        new_word=b_list.split()
-
+        new_word= msg.split()
         for binary in new_word:
             index_b= new_word.index(binary)
             character= chr(int(binary,2)-int(self.caesar_shift))
@@ -94,10 +79,6 @@ class IntelDevice:
 
         new_word_n="".join(new_word)
         return new_word_n
-
-
-
-
 
     def fill_coordinate_to_loc(self):
         """
@@ -114,14 +95,27 @@ class IntelDevice:
         The function does not return anything. It simply fills the self.coordinate_to_location data structure with the right mapping.
         """
 
-        # TODO
-        raise NotImplementedError()
+        decoded_loc=[]
+        for i in self.enc_locations:
+            decoded_loc.append(self.decode_message(i))
+
+        y=0
+        loc_index=0
+        for line in self.loc_grid:
+            x=0
+            for location in line:
+                self.coordinate_to_location[(y,x)]= decoded_loc[loc_index]
+                loc_index+= 1
+                x+=1
+            y+=1
+
+        return self.coordinate_to_location
 
     def fill_loc_grid(self):
         """
         Function that fills the data structure self.loc_grid with the codes found in self.enc_codes. Note that
-        these codes have to be decoded using self.decode_message(). The encoded codes wrap around self.loc_grid 
-        from left to right, and from top to bottom. For example, if we have 
+        these codes have to be decoded using self.decode_message(). The encoded codes wrap around self.loc_grid
+        from left to right, and from top to bottom. For example, if we have
         self.enc_codes = [self.encode_message('10'), self.encode_message('15'), self.encode_message('11'), self.encode_message('16')],
         the following loc_grid should be created/filled in:
           [[10,15],
@@ -129,9 +123,22 @@ class IntelDevice:
 
         The function does not return anything. It simply fills the self.loc_grid data structure with the decoded codes.
         """
+        decoded_codes=[]
+        for i in self.enc_codes:
+            decoded_codes.append(self.decode_message(i))
 
-        # TODO
-        raise NotImplementedError()
+        y=0
+        index_codes= 0
+        for row in self.loc_grid:
+            x=0
+            for loc in row:
+
+                self.loc_grid[y][x]= decoded_codes[index_codes]
+                x+=1
+                index_codes+=1
+            y+=1
+
+        return self.loc_grid
 
 
     def divconq_search(self, value: int, x_from: int, x_to: int, y_from: int, y_to: int) -> typing.Tuple[int, int]:
