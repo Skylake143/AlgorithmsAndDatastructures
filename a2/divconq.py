@@ -61,15 +61,6 @@ class IntelDevice:
 
         return new_word_n
 
-
-
-
-
-#string.replace(old, new, count)
-
-        #print(self.msg)
-        #for word
-        #return self.msg
     
     def decode_message(self, msg: str) -> str:
         """
@@ -84,9 +75,7 @@ class IntelDevice:
 
         # TODO
 
-        b_list= msg
-        new_word=b_list.split()
-
+        new_word= msg.split()
         for binary in new_word:
             index_b= new_word.index(binary)
             character= chr(int(binary,2)-int(self.caesar_shift))
@@ -94,10 +83,6 @@ class IntelDevice:
 
         new_word_n="".join(new_word)
         return new_word_n
-
-
-
-
 
     def fill_coordinate_to_loc(self):
         """
@@ -113,9 +98,27 @@ class IntelDevice:
 
         The function does not return anything. It simply fills the self.coordinate_to_location data structure with the right mapping.
         """
-
+        #self.loc_grid = np.zeros((height, width))
+        #self.coordinate_to_location = dict() # maps locations (y,x) to their names
         # TODO
-        raise NotImplementedError()
+
+        decoded_loc=[]
+        for i in self.enc_locations:
+            decoded_loc.append(self.decode_message(i))
+
+        coord_grid=self.coordinate_to_location
+        y=0
+        loc_index=0
+        for line in self.loc_grid:
+            x=0
+
+            for location in line:
+                coord_grid[(y,x)]= decoded_loc[loc_index]
+                loc_index+= 1
+                x+=1
+            y+=1
+
+        return coord_grid
 
     def fill_loc_grid(self):
         """
