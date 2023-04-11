@@ -167,7 +167,7 @@ class IntelDevice:
     def divconq_search(self, value: int, x_from: int, x_to: int, y_from: int, y_to: int) -> typing.Tuple[int, int]:
         """
         The divide and conquer search function. The function searches for value in a subset of self.loc_grid.
-        More specifically, we only search in the x-region from x_from up to (and including) x_from and the y-region
+        More specifically, we only search in the x-region from x_from up to (and including) x_to and the y-region
         from y_from up to (and including) y_to. At the initial function call, x_from=0, x_to=self.width-1, y_from=0, y_to=self.height-1 ,
         meaning that we search over the entire 2d grid self.loc. 
         This function recursively calls itself on smaller subproblems (subsets/subrectangles of the 2d grid) and combines the solutions
@@ -193,7 +193,56 @@ class IntelDevice:
 
         """
         # TODO
-        raise NotImplementedError()
+        #1) idea list of subrectangles:
+        #2) then iterate over subrectangles
+        #how to algorithm for one subrectangle?
+        #y_from,x_from= package? no, then next
+        #if self.width >
+
+        #print(x_to)
+        #print(y_from)
+        #print(y_to)
+        grid= self.fill_loc_grid()
+
+        flag= None
+        if x_to >= y_to:
+            fsq_s= y_to
+        else:
+            fsq_s=x_to
+
+        #fsq sidelenght of biggest possibel first square
+
+        solution_coord= None #holder for return (evaluation)
+
+        for diag_loc in range(fsq_s+1):
+            if value > grid[diag_loc][diag_loc]:#if value is bigger than first one on the diagonal, check next biggest value on diagonal
+                continue
+            else: #search for the actual value in: (diag_loc, diag_loc-1),  (diag_loc, diag_loc-2),..., (diag_loc, 0) and (diag_loc-1, diag_loc), ..., (0, diag_loc)
+
+                coord_grid=self.fill_coordinate_to_loc()
+                loc_search= []
+
+                if value== grid[diag_loc][diag_loc]: #check for (diag_loc, diag_loc)
+                    solution_coord=(diag_loc,diag_loc)
+                    break
+
+                else:
+                    #all possible location except (diag_loc,diagloc)
+                    for latvert_loc in range(diag_loc):#what if diag_loc=0
+                        loc_search.append(grid[diag_loc-(1+latvert_loc)][diag_loc])
+                        loc_search.append(grid[diag_loc][diag_loc-(1+latvert_loc)])
+
+                    for p_v in loc_search: #loop over all possible locations
+                        if p_v== value: #if value found, transform from index of locaton list to location
+                            if p_v%2==1:
+                               solution_coord= (diag_loc,diag_loc-((p_v+1)/2))
+                            else:
+                                solution_coord=(diag_loc-((p_v/2)+1),diag_loc)
+                            break
+                    break
+
+        return solution_coord
+
 
     def start_search(self, value) -> str:
         """
