@@ -231,14 +231,16 @@ class IntelDevice:
                     for latvert_loc in range(diag_loc):#what if diag_loc=0
                         loc_search.append(grid[diag_loc-(1+latvert_loc)][diag_loc])
                         loc_search.append(grid[diag_loc][diag_loc-(1+latvert_loc)])
-
+                    index=0
                     for p_v in loc_search: #loop over all possible locations
                         if p_v== value: #if value found, transform from index of locaton list to location
-                            if p_v%2==1:
-                               solution_coord= (diag_loc,diag_loc-((p_v+1)/2))
+                            if index%2==1:
+                                solution_coord= (diag_loc,diag_loc-((index+1)/2))
                             else:
-                                solution_coord=(diag_loc-((p_v/2)+1),diag_loc)
+                                solution_coord=(diag_loc-((index/2)+1),diag_loc)
                             break
+                        index+=1
+
                     break
 
         return solution_coord
