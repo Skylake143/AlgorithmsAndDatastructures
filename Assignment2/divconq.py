@@ -48,9 +48,15 @@ class IntelDevice:
         
         Returns: the encoded message
         """
-
-        # TODO
-        raise NotImplementedError()
+        #Transform from string to list of numerals
+        ordinal = [ord(charac) for charac in msg]
+        #Perform ceasar shift
+        ordinal_ceasar_shift = [i+self.caesar_shift for i in ordinal]
+        #Transform list of numerals into list of bitstrings
+        binary_ceasar_shift = ["{0:b}".format(i) for i in ordinal_ceasar_shift]
+        #Concatenate list into string
+        string_binary= " ".join(binary_ceasar_shift)
+        return string_binary
 
     
     def decode_message(self, msg: str) -> str:
@@ -64,8 +70,16 @@ class IntelDevice:
         Returns: the decoded message
         """
 
-        # TODO
-        raise NotImplementedError()
+        #Transform string into list of bitstrings
+        binaries_list = msg.split(' ')
+        #Transfrom bitstring into integer
+        ordinal_ceasarshifted = [int(i,2) for i in binaries_list]
+        #Perform inverse ceasar_shift
+        ordinals = [i-self.caesar_shift for i in ordinal_ceasarshifted]
+        #
+        characters = [chr(charac) for charac in ordinals]
+        character_string = ''.join(characters)
+        return character_string
 
 
     def fill_coordinate_to_loc(self):
@@ -83,8 +97,12 @@ class IntelDevice:
         The function does not return anything. It simply fills the self.coordinate_to_location data structure with the right mapping.
         """
 
-        # TODO
-        raise NotImplementedError()
+        #Iterate through all rows and columns
+        for row in range(self.height):
+          for column in range(self.width):
+        #Add character to location dictionary
+              self.coordinate_to_location.update({(row, column):self.decode_message(self.enc_locations[row*self.width+column])})
+        return 
 
     def fill_loc_grid(self):
         """
@@ -99,15 +117,18 @@ class IntelDevice:
         The function does not return anything. It simply fills the self.loc_grid data structure with the decoded codes.
         """
 
-        # TODO
-        raise NotImplementedError()
+        #Iterate through all rows and columns
+        for row in range(self.height):
+          for column in range(self.width):
+        #Add character to location dictionaryx
+              self.loc_grid[row, column] = self.decode_message(self.enc_codes[row*self.width+column])
+        return 
 
-
-    def divconq_search(self, value: int, x_from: int, x_to: int, y_from: int, y_to: int) -> typing.Tuple[int, int]:
+    def divconq_search(self, value: int, x_from: int, x_to: int, y_from: int, y_to: int):
         """
         The divide and conquer search function. The function searches for value in a subset of self.loc_grid.
         More specifically, we only search in the x-region from x_from up to (and including) x_from and the y-region
-        from y_from up to (and including) y_to. At the initial function call, x_from=0, x_to=self.width-1, y_from=0, y_to=self.height-1 ,
+        from y_from up to (and including) y_to. At the initial function call, x_from=0, x_to=self.width-1, y_from=0, y_to=self.height-1,
         meaning that we search over the entire 2d grid self.loc. 
         This function recursively calls itself on smaller subproblems (subsets/subrectangles of the 2d grid) and combines the solutions
         to these subproblems in order to find the solution to the complete initial problem.
@@ -129,10 +150,41 @@ class IntelDevice:
         Returns:
           None if the value does not occur in the subrectangle we are searching over
           A tuple (y,x) specifying the location where the value was found (if the value occurs in the subrectangle)
+          """
+        #Fille loc_grid with package codes
+        self.fill_loc_grid()
+        
+        #If rectangle Boundaries are hit 
+        if y_from > y_to and x_from > x_to:
+          return None
 
-        """
-        # TODO
-        raise NotImplementedError()
+        #Hitting bottom boundary and continue searching right leftover
+        if y_from > y_to:
+            #Search remaining subrectangle
+            location = self.divconq_search(value, x_from+1, x_to, 0, y_to)
+            return location
+
+        #Hitting right boundary and continue searching leftover beneath
+        if x_from > x_to:
+            location = self.divconq_search(value, 0, x_to, y_from+1, y_to)
+            return location
+        
+        #Found value on diagonal that is traversed
+        if self.loc_grid[y_from][x_from] == value: return (y_from, x_from)
+
+        #If entry on diagonal is bigger than value, check all elements that are left and above (according to provided constraints)
+        if self.loc_grid[y_from][x_from] >= value and y_from >0 and x_from >0:
+            for i in range(0,x_from):
+                for j in range(0,y_from):
+                    if self.loc_grid[y_from][i] == value:
+                      return (y_from, i)
+                    if self.loc_grid[j][x_from] == value:
+                        return (j, x_from)
+        
+        #If not found continue with other leftover rectangles
+        location = self.divconq_search(value, x_from+1, x_to, y_from+1, y_to)
+        return location
+
 
     def start_search(self, value) -> str:
         """
