@@ -8,6 +8,7 @@
 00_Trees_v4/__pycache__/node.cpython-310.pyc
 00_Trees_v4/__pycache__/test_binary_tree.cpython-310.pyc
 Asignment1/.DS_Store
+<<<<<<< HEAD
 a2/__pycache__/divconq.cpython-310.pyc
 a2/__pycache__/test_usecases.cpython-310.pyc
 A2DivideAndConquer/__pycache__/divconq.cpython-310.pyc
@@ -29,6 +30,8 @@ Assignment2/__pycache__/test_private.cpython-310.pyc
 Assignment2/__pycache__/test_usecases.cpython-310.pyc
 a2/__pycache__/divconq.cpython-310.pyc
 a2/__pycache__/test_usecases.cpython-310.pyc
+=======
+>>>>>>> master
 Assignment2/__pycache__/divconq.cpython-310.pyc
 Assignment2/__pycache__/test_private.cpython-310.pyc
 Assignment2/__pycache__/test_usecases.cpython-310.pyc
