@@ -165,7 +165,7 @@ class IntelDevice:
         #Fille loc_grid with package codes 
         self.fill_loc_grid()    
         #Check if constraints are fulfilled
-        #if (self.check_constraints() is False): return None
+        if (self.check_constraints() is False): return None
 
         
         #If rectangle Boundaries are hit 
@@ -203,14 +203,14 @@ class IntelDevice:
         """
         The linear search function. The function iterates through all elements in self.loc_grid and checks whether the value occurs in self.loc_grid. The function should be slower than the 
         """
-        # decoded_messages = [self.decode_message(code) for code in self.enc_codes]
-        # numerics = [message.isnumeric() for message in decoded_messages]
-        # if False in numerics: return None
+        decoded_messages = [self.decode_message(code) for code in self.enc_codes]
+        numerics = [message.isnumeric() for message in decoded_messages]
+        if False in numerics: return None
 
         #Fille loc_grid with package codes 
         self.fill_loc_grid()    
         #Check if constraints are fulfilled
-        #if (self.check_constraints() is False): return None
+        if (self.check_constraints() is False): return None
 
         #Iterate through all rows and columns
         for column in range(self.width):
@@ -239,9 +239,9 @@ class IntelDevice:
         # construct the loc_grid and start the search
         
         #Check if elements in encoded message are only numerics
-        # decoded_messages = [self.decode_message(code) for code in self.enc_codes]
-        # numerics = [message.isnumeric() for message in decoded_messages]
-        # if False in numerics: return None
+        decoded_messages = [self.decode_message(code) for code in self.enc_codes]
+        numerics = [message.isnumeric() for message in decoded_messages]
+        if False in numerics: return None
         result = self.divconq_search(value, x_from=0, x_to=self.loc_grid.shape[1]-1, y_from=0, y_to=self.loc_grid.shape[0]-1)
 
         if result is None:
