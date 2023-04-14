@@ -165,7 +165,7 @@ class IntelDevice:
         #Fille loc_grid with package codes 
         self.fill_loc_grid()    
         #Check if constraints are fulfilled
-        if (self.check_constraints() is False): return None
+        #if (self.check_constraints() is False): return None
 
         
         #If rectangle Boundaries are hit 
@@ -189,18 +189,37 @@ class IntelDevice:
         #If entry on diagonal is bigger than value, check all elements that are left and above (according to provided constraints)
         if self.loc_grid[y_from][x_from] >= value and y_from >0 and x_from >0:
             for i in range(0,x_from):
-                for j in range(0,y_from):
-                    if self.loc_grid[y_from][i] == value:
-                      return (y_from, i)
-                    if self.loc_grid[j][x_from] == value:
-                        return (j, x_from)
+                if self.loc_grid[y_from][i] == value:
+                  return (y_from, i)
+            for j in range(0,y_from):
+                if self.loc_grid[j][x_from] == value:
+                    return (j, x_from)
         
         #If not found continue with other leftover rectangles
         location = self.divconq_search(value, x_from+1, x_to, y_from+1, y_to)
         return location
 
-    
+    def divconq_search_linear(self, value: int):
+        """
+        The linear search function. The function iterates through all elements in self.loc_grid and checks whether the value occurs in self.loc_grid. The function should be slower than the 
+        """
+        # decoded_messages = [self.decode_message(code) for code in self.enc_codes]
+        # numerics = [message.isnumeric() for message in decoded_messages]
+        # if False in numerics: return None
+
+        #Fille loc_grid with package codes 
+        self.fill_loc_grid()    
+        #Check if constraints are fulfilled
+        #if (self.check_constraints() is False): return None
+
+        #Iterate through all rows and columns
+        for column in range(self.width):
+          for row in range(self.height):
+              if self.loc_grid[row][column]==value: return (row,column)
+
+        return None
         
+    
 
     def start_search(self, value) -> str:
         """
@@ -220,9 +239,9 @@ class IntelDevice:
         # construct the loc_grid and start the search
         
         #Check if elements in encoded message are only numerics
-        decoded_messages = [self.decode_message(code) for code in self.enc_codes]
-        numerics = [message.isnumeric() for message in decoded_messages]
-        if False in numerics: return None
+        # decoded_messages = [self.decode_message(code) for code in self.enc_codes]
+        # numerics = [message.isnumeric() for message in decoded_messages]
+        # if False in numerics: return None
         result = self.divconq_search(value, x_from=0, x_to=self.loc_grid.shape[1]-1, y_from=0, y_to=self.loc_grid.shape[0]-1)
 
         if result is None:
@@ -230,3 +249,30 @@ class IntelDevice:
         else:
             return self.encode_message(self.coordinate_to_location[result])
         
+    def start_search_linear(self, value) -> str:
+        """
+        Non-recursive function that starts the recursive divide and conquer search function above. You can assume
+        that self.coordinate_to_location and self.loc_grid have already been filled before this function is called (so 
+        make sure not to call them again in this function). 
+        
+        :param value: The value that we are searching for in self.loc_grid
+
+        Returns:
+          None if the value does not occur in self.loc_grid
+          The encoded location of where the value was found. Note that the location is not the (y,x) tuple but the
+          corresponding name of the location (encoded with self.encode_message). 
+        """
+
+        # process raw locations with caesar shift, 
+        # construct the loc_grid and start the search
+        
+        #Check if elements in encoded message are only numerics
+        # decoded_messages = [self.decode_message(code) for code in self.enc_codes]
+        # numerics = [message.isnumeric() for message in decoded_messages]
+        # if False in numerics: return None
+        result = self.divconq_search_linear(value)
+
+        if result is None:
+            return result
+        else:
+            return self.encode_message(self.coordinate_to_location[result])
