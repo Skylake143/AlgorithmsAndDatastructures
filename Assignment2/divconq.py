@@ -124,6 +124,17 @@ class IntelDevice:
               self.loc_grid[row, column] = self.decode_message(self.enc_codes[row*self.width+column])
         return 
 
+    #Method checks if constraints are fulfilled that elements in rows and columns are sorted 
+    def check_constraints(self):
+        for columns in range(self.width):
+            row = self.loc_grid[:, columns]
+            if (row != np.sort(row)).all() : return False 
+
+        for rows in range(self.height):
+            column = self.loc_grid[rows,: ]
+            if (column != np.sort(column)).all(): return False
+        return True
+
     def divconq_search(self, value: int, x_from: int, x_to: int, y_from: int, y_to: int):
         """
         The divide and conquer search function. The function searches for value in a subset of self.loc_grid.
@@ -151,8 +162,11 @@ class IntelDevice:
           None if the value does not occur in the subrectangle we are searching over
           A tuple (y,x) specifying the location where the value was found (if the value occurs in the subrectangle)
           """
-        #Fille loc_grid with package codes
-        self.fill_loc_grid()
+        #Fille loc_grid with package codes 
+        self.fill_loc_grid()    
+        #Check if constraints are fulfilled
+        if (self.check_constraints() is False): return None
+
         
         #If rectangle Boundaries are hit 
         if y_from > y_to and x_from > x_to:
@@ -185,6 +199,8 @@ class IntelDevice:
         location = self.divconq_search(value, x_from+1, x_to, y_from+1, y_to)
         return location
 
+    
+        
 
     def start_search(self, value) -> str:
         """
@@ -202,6 +218,11 @@ class IntelDevice:
 
         # process raw locations with caesar shift, 
         # construct the loc_grid and start the search
+        
+        #Check if elements in encoded message are only numerics
+        decoded_messages = [self.decode_message(code) for code in self.enc_codes]
+        numerics = [message.isnumeric() for message in decoded_messages]
+        if False in numerics: return None
         result = self.divconq_search(value, x_from=0, x_to=self.loc_grid.shape[1]-1, y_from=0, y_to=self.loc_grid.shape[0]-1)
 
         if result is None:
