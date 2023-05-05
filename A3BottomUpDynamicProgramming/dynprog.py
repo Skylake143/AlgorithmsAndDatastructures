@@ -60,9 +60,8 @@ class DroneExtinguisher:
           float: the Euclidean distance between the two points
         """
         
-        # TODO
-        raise NotImplementedError()
-
+        distance = np.sqrt((point2[1]-point1[1])**2+(point2[0]-point1[0])**2)
+        return distance
 
     def fill_travel_costs_in_liters(self):
         """
@@ -74,9 +73,9 @@ class DroneExtinguisher:
         The function does not return anything.  
         """
         
-        # TODO
-        raise NotImplementedError()
+        distances = [self.compute_euclidean_distance(bag_location, self.forest_location) for bag_location in self.bag_locations]
 
+        self.travel_costs_in_liters = [np.ceil(2*distance * self.liter_cost_per_km) for distance in distances]
 
     def compute_sequence_idle_time_in_liters(self, i, j):
         """
@@ -94,9 +93,13 @@ class DroneExtinguisher:
         Returns:
           int: the amount of time (measured in liters) that we are idle on the day   
         """
+
+        idle_time = self.liter_budget_per_day - np.sum(self.bags[i:j+1])- np.sum(self.travel_costs_in_liters[i:j+1])
+
+        return int(idle_time)
         
-        # TODO
-        raise NotImplementedError()
+
+
 
     def compute_idle_cost(self, i, j, idle_time_in_liters):
         """
@@ -105,7 +108,9 @@ class DroneExtinguisher:
         in the assignment description. 
         If transporting self.bags[i:j+1] is not possible within a day, we should return np.inf as cost. 
         Moreover, if self.bags[i:j+1] are the last bags that are transported on the final day, the idle cost is 0 
-        as the operation has been completed. In all other cases, we use the formula from the assignment text. 
+        as the operation has been completed. 
+        
+        In all other cases, we use the formula from the assignment text. 
 
         You may not need to use every argument of this function
 
@@ -116,9 +121,18 @@ class DroneExtinguisher:
         Returns
           - integer: the cost of being idle on a day corresponding to idle_time_in_liters
         """
+
+        idle_t = idle_time_in_liters
+        if idle_t < 0: return np.inf
         
-        # TODO
-        raise NotImplementedError()
+        #TODO is that the right implementation for "last bags transported on the final day"
+        if j==len(self.bags)-1: 
+            return 0
+        
+        idle_t = idle_t**3
+
+        return idle_t
+    
     
     def compute_sequence_usage_cost(self, i: int, j: int, k: int) -> float:
         """
@@ -134,9 +148,11 @@ class DroneExtinguisher:
         Returns
           - float: the cost of usign drone k for bags[i:j+1] 
         """
+
+        usage_cost = sum(self.usage_cost[i:j+1,k])
+        return usage_cost
         
-        # TODO
-        raise NotImplementedError()
+        
 
 
     def dynamic_programming(self):
