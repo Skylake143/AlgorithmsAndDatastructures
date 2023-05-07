@@ -150,6 +150,7 @@ class TestIntelDevice(unittest.TestCase):
         ob.fill_loc_grid()
 
         # values that occur in the 2d grid
+        test = enumerate(a.reshape(-1))
         for vid, v in enumerate(a.reshape(-1)):
             if v == 20:
                 continue
