@@ -59,9 +59,8 @@ class DroneExtinguisher:
         Returns 
           float: the Euclidean distance between the two points
         """
-        
-        # TODO
-        raise NotImplementedError()
+        euc_dist= math.sqrt((int(point1[0])-int(point2[0]))**2 + (int(point1[1])-int(point2[1]))**2) 
+        return euc_dist
 
 
     def fill_travel_costs_in_liters(self):
@@ -73,9 +72,13 @@ class DroneExtinguisher:
                 
         The function does not return anything.  
         """
-        
-        # TODO
-        raise NotImplementedError()
+
+        #d with distance forest to bags, 
+        #c=d*l
+       
+        #self.travel_costs_in_liters=d*self.liter_cost_per_km
+
+        #return self.travel_costs_in_liters
 
 
     def compute_sequence_idle_time_in_liters(self, i, j):

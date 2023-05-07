@@ -22,7 +22,7 @@ class TestDroneExtinguisher(unittest.TestCase):
                                liter_budget_per_day=0, usage_cost=None)
         de.fill_travel_costs_in_liters()
 
-        distances = [5, 10]
+        distances = [5, 10] 
         liter_costs = [20, 40] # 2x the distances in this case
         self.assertListEqual(liter_costs, de.travel_costs_in_liters)
 
