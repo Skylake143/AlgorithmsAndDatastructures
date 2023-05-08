@@ -59,7 +59,7 @@ class DroneExtinguisher:
         Returns 
           float: the Euclidean distance between the two points
         """
-        euc_dist= math.sqrt((int(point1[0])-int(point2[0]))**2 + (int(point1[1])-int(point2[1]))**2) 
+        euc_dist= math.sqrt((point1[0]-point2[0])**2 + (point1[1]-point2[1])**2) 
         return euc_dist
 
 
@@ -79,7 +79,7 @@ class DroneExtinguisher:
 
         self.travel_costs_in_liters = [np.ceil(dist *2* self.liter_cost_per_km) for dist in distances]
         
-        return self.travel_costs_in_liters
+        
 
     def compute_sequence_idle_time_in_liters(self, i, j):
         """
@@ -97,15 +97,13 @@ class DroneExtinguisher:
         Returns:
           int: the amount of time (measured in liters) that we are idle on the day   
         """
-        #print(self.liter_budget_per_day)
+        
         
         temp_l= self.liter_budget_per_day
         for k in range(j+1):
             temp_l=temp_l-(self.bags[k]+self.travel_costs_in_liters[k])
             
-        
-        idle_time= temp_l
-
+        idle_time= int(temp_l)
         return idle_time
         
 
@@ -128,8 +126,17 @@ class DroneExtinguisher:
           - integer: the cost of being idle on a day corresponding to idle_time_in_liters
         """
         
-        # TODO
-        raise NotImplementedError()
+        
+        if not idle_time_in_liters >= 0: 
+          return np.inf
+        
+        elif j+1==len(self.bags): 
+            return 0
+        
+        else: 
+            idle_time_in_liters = idle_time_in_liters**3
+
+        return idle_time_in_liters
     
     def compute_sequence_usage_cost(self, i: int, j: int, k: int) -> float:
         """
@@ -146,8 +153,10 @@ class DroneExtinguisher:
           - float: the cost of usign drone k for bags[i:j+1] 
         """
         
-        # TODO
-        raise NotImplementedError()
+        
+        usage_cost = np.sum(self.usage_cost[i:j+1,k])
+        
+        return usage_cost
 
 
     def dynamic_programming(self):
