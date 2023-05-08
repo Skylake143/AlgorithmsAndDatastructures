@@ -73,13 +73,13 @@ class DroneExtinguisher:
         The function does not return anything.  
         """
 
-        #d with distance forest to bags, 
-        #c=d*l
-       
-        #self.travel_costs_in_liters=d*self.liter_cost_per_km
+        distances=[]
+        for bag_loc in self.bag_locations: 
+            distances.append(self.compute_euclidean_distance(bag_loc, self.forest_location))
 
-        #return self.travel_costs_in_liters
-
+        self.travel_costs_in_liters = [np.ceil(dist *2* self.liter_cost_per_km) for dist in distances]
+        
+        return self.travel_costs_in_liters
 
     def compute_sequence_idle_time_in_liters(self, i, j):
         """
@@ -97,9 +97,17 @@ class DroneExtinguisher:
         Returns:
           int: the amount of time (measured in liters) that we are idle on the day   
         """
+        #print(self.liter_budget_per_day)
         
-        # TODO
-        raise NotImplementedError()
+        temp_l= self.liter_budget_per_day
+        for k in range(j+1):
+            temp_l=temp_l-(self.bags[k]+self.travel_costs_in_liters[k])
+            
+        
+        idle_time= temp_l
+
+        return idle_time
+        
 
     def compute_idle_cost(self, i, j, idle_time_in_liters):
         """
