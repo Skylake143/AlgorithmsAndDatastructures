@@ -72,10 +72,20 @@ class DroneExtinguisher:
                 
         The function does not return anything.  
         """
-        
-        distances = [self.compute_euclidean_distance(bag_location, self.forest_location) for bag_location in self.bag_locations]
 
-        self.travel_costs_in_liters = [np.ceil(2*distance * self.liter_cost_per_km) for distance in distances]
+        distances=[]
+        for bag_loc in self.bag_locations: 
+            distances.append(self.compute_euclidean_distance(bag_loc, self.forest_location))
+
+        self.travel_costs_in_liters = [np.ceil(dist *2* self.liter_cost_per_km) for dist in distances]
+
+        return self.travel_costs_in_liters
+        
+        
+        # distances = [self.compute_euclidean_distance(bag_location, self.forest_location) for bag_location in self.bag_locations]
+
+        # self.travel_costs_in_liters = [np.ceil(distance *2* self.liter_cost_per_km) for distance in distances]
+
 
     def compute_sequence_idle_time_in_liters(self, i, j):
         """
@@ -98,7 +108,6 @@ class DroneExtinguisher:
 
         return int(idle_time)
         
-
 
 
     def compute_idle_cost(self, i, j, idle_time_in_liters):
@@ -146,13 +155,33 @@ class DroneExtinguisher:
         :param k: integer index
 
         Returns
-          - float: the cost of usign drone k for bags[i:j+1] 
+          - float: the cost of using drone k for bags[i:j+1] 
         """
 
         usage_cost = sum(self.usage_cost[i:j+1,k])
         return usage_cost
-        
-        
+
+    def fill_optimal_cost(self, bag, drone):
+        #Calculate tuples of all possibilies of previous optimal cost, sequence usagecosts and sequence idle costs
+        candidates = [(float(self.optimal_cost[begin][drone]), float(self.compute_sequence_usage_cost(begin,bag, drone)),float(self.compute_idle_cost(begin,bag,self.compute_sequence_idle_time_in_liters(begin,bag)))) for begin in range(0,bag+1)]
+
+        #Sum up tuples and find minimum
+        cost_candidates = [sum(list(candidate)) for candidate in candidates]
+        minimum_candidate = min(cost_candidates)
+
+        #Get index of minimum element in order to store it in idle array
+        index = cost_candidates.index(minimum_candidate)
+        idle_time_min_element = candidates[index][2]
+
+        #If previous drone has lower cost store previous drone
+        if drone>0 and self.optimal_cost[bag+1,drone-1] < minimum_candidate:
+            self.optimal_cost[bag+1][drone] = self.optimal_cost[bag+1,drone-1]
+            self.idle_cost[index][bag] = self.idle_cost[bag,drone-1]
+
+        #Else store minimum_candidate as optimal cost
+        else: 
+            self.optimal_cost[bag+1][drone] = minimum_candidate
+            self.idle_cost[index][bag] = idle_time_min_element
 
 
     def dynamic_programming(self):
@@ -162,9 +191,11 @@ class DroneExtinguisher:
         In this function, we fill the memory structures self.idle_cost and self.optimal_cost making use of functions defined above. 
         This function does not return anything. 
         """
-        
-        # TODO
-        raise NotImplementedError()
+        self.optimal_cost[0,:]=0 
+
+        for drone in range(self.num_drones):
+            for bag in range(self.num_bags):
+                self.fill_optimal_cost(bag, drone)
 
     def lowest_cost(self) -> float:
         """
@@ -175,10 +206,7 @@ class DroneExtinguisher:
         Returns:
           - float: the lowest cost
         """
-        
-        # TODO
-        raise NotImplementedError()
-
+        return self.optimal_cost[-1,-1]
 
     def backtrace_solution(self) -> typing.List[int]:
         """
@@ -195,5 +223,3 @@ class DroneExtinguisher:
         :return: A tuple (leftmost indices, drone list) as described above
         """
         
-        # TODO
-        raise NotImplementedError()
