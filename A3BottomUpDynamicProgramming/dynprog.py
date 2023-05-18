@@ -45,7 +45,7 @@ class DroneExtinguisher:
 
         # Data structure that can be used for the backtracing method (NOT backtracking):
         # reconstructing what bags we empty on every day in the forest
-        self.backtrace_memory = dict()
+        self.backtrace_memory = np.zeros(self.num_bags, dtype=int)
     
     @staticmethod
     def compute_euclidean_distance(point1: typing.Tuple[float, float], point2: typing.Tuple[float, float]) -> float:
@@ -165,23 +165,27 @@ class DroneExtinguisher:
         #Calculate tuples of all possibilies of previous optimal cost, sequence usagecosts and sequence idle costs
         candidates = [(float(self.optimal_cost[begin][drone]), float(self.compute_sequence_usage_cost(begin,bag, drone)),float(self.compute_idle_cost(begin,bag,self.compute_sequence_idle_time_in_liters(begin,bag)))) for begin in range(0,bag+1)]
 
+        #Fill idle costs
+        for begin in range(0,bag+1):
+            self.idle_cost[begin][bag]=candidates[begin][2]
+
         #Sum up tuples and find minimum
         cost_candidates = [sum(list(candidate)) for candidate in candidates]
         minimum_candidate = min(cost_candidates)
 
-        #Get index of minimum element in order to store it in idle array
-        index = cost_candidates.index(minimum_candidate)
-        idle_time_min_element = candidates[index][2]
+        # #Get index of minimum element in order to store it in idle array
+        # index = cost_candidates.index(minimum_candidate)
+        # idle_time_min_element = candidates[index][2]
 
         #If previous drone has lower cost store previous drone
         if drone>0 and self.optimal_cost[bag+1,drone-1] < minimum_candidate:
             self.optimal_cost[bag+1][drone] = self.optimal_cost[bag+1,drone-1]
-            self.idle_cost[index][bag] = self.idle_cost[bag,drone-1]
 
         #Else store minimum_candidate as optimal cost
         else: 
             self.optimal_cost[bag+1][drone] = minimum_candidate
-            self.idle_cost[index][bag] = idle_time_min_element
+            self.backtrace_memory[bag] = drone
+
 
 
     def dynamic_programming(self):
@@ -206,9 +210,10 @@ class DroneExtinguisher:
         Returns:
           - float: the lowest cost
         """
+        #TODO: what if last bag is not transported by last drone?? -> minimum of last row?? - Resolved: entry is overwritten by if condition, thus if previous drone has lower cost it is also written in field "right" from it
         return self.optimal_cost[-1,-1]
 
-    def backtrace_solution(self) -> typing.List[int]:
+    def backtrace_solution(self):
         """
         Returns the solution of how the lowest cost was obtained by using, for example, self.backtrace_memory (but feel free to do it your own way). 
         The solution is a tuple (leftmost indices, drone list) as described in the assignment text. Here, leftmost indices is a list 
@@ -222,4 +227,21 @@ class DroneExtinguisher:
             
         :return: A tuple (leftmost indices, drone list) as described above
         """
-        
+        #Calculate tuples of all possibilies of previous optimal cost, sequence usagecosts and sequence idle costs
+        self.optimal_cost[0,:]=0 
+
+        leftmost_indices = []
+        previous_entry = -1
+
+        #Iteration through last drone
+        #This can be done since entries in last column also take entries from previous drones in case that previous drone has lower cost
+        #Search for point where cost does not get lower anymore, since then we reach the point when new day begins
+        for bag in range(1,self.num_bags+1):
+            if self.optimal_cost[bag,-1] >= previous_entry:
+                leftmost_indices.append(bag-1)
+            previous_entry = self.optimal_cost[bag,-1]
+
+        drone_list = list(self.backtrace_memory)
+
+        return (leftmost_indices, drone_list)
+
