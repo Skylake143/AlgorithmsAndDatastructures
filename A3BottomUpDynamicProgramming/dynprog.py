@@ -161,33 +161,6 @@ class DroneExtinguisher:
         usage_cost = sum(self.usage_cost[i:j+1,k])
         return usage_cost
 
-    def fill_optimal_cost(self, bag, drone):
-        #Calculate tuples of all possibilies of previous optimal cost, sequence usagecosts and sequence idle costs
-        candidates = [(float(self.optimal_cost[begin][drone]), float(self.compute_sequence_usage_cost(begin,bag, drone)),float(self.compute_idle_cost(begin,bag,self.compute_sequence_idle_time_in_liters(begin,bag)))) for begin in range(0,bag+1)]
-
-        #Fill idle costs
-        for begin in range(0,bag+1):
-            self.idle_cost[begin][bag]=candidates[begin][2]
-
-        #Sum up tuples and find minimum
-        cost_candidates = [sum(list(candidate)) for candidate in candidates]
-        minimum_candidate = min(cost_candidates)
-
-        # #Get index of minimum element in order to store it in idle array
-        # index = cost_candidates.index(minimum_candidate)
-        # idle_time_min_element = candidates[index][2]
-
-        #If previous drone has lower cost store previous drone
-        if drone>0 and self.optimal_cost[bag+1,drone-1] < minimum_candidate:
-            self.optimal_cost[bag+1][drone] = self.optimal_cost[bag+1,drone-1]
-
-        #Else store minimum_candidate as optimal cost
-        else: 
-            self.optimal_cost[bag+1][drone] = minimum_candidate
-            self.backtrace_memory[bag] = drone
-
-
-
     def dynamic_programming(self):
         """
         The function that uses dynamic programming to solve the problem: compute the optimal way of emptying bags in the forest
@@ -197,9 +170,24 @@ class DroneExtinguisher:
         """
         self.optimal_cost[0,:]=0 
 
+        #Fill optimal cost columnwise (first all bags, then next drone)
         for drone in range(self.num_drones):
             for bag in range(self.num_bags):
-                self.fill_optimal_cost(bag, drone)
+                #Calculate tuples of all possibilies of previous optimal cost, sequence usagecosts and sequence idle costs
+                candidates = [float(self.optimal_cost[begin][drone] + self.compute_sequence_usage_cost(begin,bag, drone) + self.compute_idle_cost(begin,bag,self.compute_sequence_idle_time_in_liters(begin,bag))) for begin in range(0,bag+1)]
+
+                #Find minimum candidate
+                minimum_candidate = min(candidates)
+
+                #If previous drone has lower cost store previous drone
+                if drone>0 and self.optimal_cost[bag+1,drone-1] < minimum_candidate:
+                    self.optimal_cost[bag+1][drone] = self.optimal_cost[bag+1,drone-1]
+
+                #Else store minimum_candidate as optimal cost
+                else: 
+                    self.optimal_cost[bag+1][drone] = minimum_candidate
+                    self.backtrace_memory[bag] = drone
+
 
     def lowest_cost(self) -> float:
         """
