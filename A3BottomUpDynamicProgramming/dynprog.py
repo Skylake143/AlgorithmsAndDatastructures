@@ -46,6 +46,15 @@ class DroneExtinguisher:
         # Data structure that can be used for the backtracing method (NOT backtracking):
         # reconstructing what bags we empty on every day in the forest
         self.backtrace_memory = np.zeros(self.num_bags, dtype=int)
+
+        self.correct_inputs = True
+        self.check_correct_inputs()
+        
+    #Function to check for wrong input
+    def check_correct_inputs(self):
+        if self.liter_cost_per_km < 0 or min(self.bags) <0 or self.liter_budget_per_day < 0 or (self.usage_cost is not None and np.any(self.usage_cost<0)):
+            self.correct_inputs = False
+        
     
     @staticmethod
     def compute_euclidean_distance(point1: typing.Tuple[float, float], point2: typing.Tuple[float, float]) -> float:
@@ -143,7 +152,7 @@ class DroneExtinguisher:
         return idle_t
     
     
-    def compute_sequence_usage_cost(self, i: int, j: int, k: int) -> float:
+    def compute_sequence_usage_cost(self, i: int, j: int, k: int):
         """
         Function that computes and returns the cost of using drone k for self.bags[i:j+1], making use of
         self.usage_cost, which gives the cost for every bag-drone pair. 
@@ -157,6 +166,8 @@ class DroneExtinguisher:
         Returns
           - float: the cost of using drone k for bags[i:j+1] 
         """
+        if self.correct_inputs == False: return None
+
 
         usage_cost = sum(self.usage_cost[i:j+1,k])
         return usage_cost
@@ -168,6 +179,8 @@ class DroneExtinguisher:
         In this function, we fill the memory structures self.idle_cost and self.optimal_cost making use of functions defined above. 
         This function does not return anything. 
         """
+        if self.correct_inputs == False: return 
+
         self.optimal_cost[0,:]=0 
 
         #Fill optimal cost columnwise (first all bags, then next drone)
@@ -189,7 +202,7 @@ class DroneExtinguisher:
                     self.backtrace_memory[bag] = drone
 
 
-    def lowest_cost(self) -> float:
+    def lowest_cost(self):
         """
         Returns the lowest cost at which we can empty the water bags to extinguish to forest fire. Inside of this function,
         you can assume that self.dynamic_progrmaming() has been called so that in this function, you can simply extract and return
@@ -199,6 +212,8 @@ class DroneExtinguisher:
           - float: the lowest cost
         """
         #TODO: what if last bag is not transported by last drone?? -> minimum of last row?? - Resolved: entry is overwritten by if condition, thus if previous drone has lower cost it is also written in field "right" from it
+        if self.correct_inputs == False: return None
+
         return self.optimal_cost[-1,-1]
 
     def backtrace_solution(self):
@@ -215,6 +230,8 @@ class DroneExtinguisher:
             
         :return: A tuple (leftmost indices, drone list) as described above
         """
+        if self.correct_inputs == False: return None
+
         #Calculate tuples of all possibilies of previous optimal cost, sequence usagecosts and sequence idle costs
         self.optimal_cost[0,:]=0 
 
