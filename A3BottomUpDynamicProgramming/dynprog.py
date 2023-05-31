@@ -45,7 +45,16 @@ class DroneExtinguisher:
 
         # Data structure that can be used for the backtracing method (NOT backtracking):
         # reconstructing what bags we empty on every day in the forest
-        self.backtrace_memory = dict()
+        self.backtrace_memory = np.zeros(self.num_bags, dtype=int)
+
+        self.correct_inputs = True
+        self.check_correct_inputs()
+        
+    #Function to check for wrong input
+    def check_correct_inputs(self):
+        if self.liter_cost_per_km < 0 or min(self.bags) <0 or self.liter_budget_per_day < 0 or (self.usage_cost is not None and np.any(self.usage_cost<0)):
+            self.correct_inputs = False
+        
     
     @staticmethod
     def compute_euclidean_distance(point1: typing.Tuple[float, float], point2: typing.Tuple[float, float]) -> float:
@@ -60,9 +69,8 @@ class DroneExtinguisher:
           float: the Euclidean distance between the two points
         """
         
-        # TODO
-        raise NotImplementedError()
-
+        distance = np.sqrt((point2[1]-point1[1])**2+(point2[0]-point1[0])**2)
+        return distance
 
     def fill_travel_costs_in_liters(self):
         """
@@ -73,9 +81,19 @@ class DroneExtinguisher:
                 
         The function does not return anything.  
         """
+
+        distances=[]
+        for bag_loc in self.bag_locations: 
+            distances.append(self.compute_euclidean_distance(bag_loc, self.forest_location))
+
+        self.travel_costs_in_liters = [np.ceil(dist *2* self.liter_cost_per_km) for dist in distances]
+
+        return self.travel_costs_in_liters
         
-        # TODO
-        raise NotImplementedError()
+        
+        # distances = [self.compute_euclidean_distance(bag_location, self.forest_location) for bag_location in self.bag_locations]
+
+        # self.travel_costs_in_liters = [np.ceil(distance *2* self.liter_cost_per_km) for distance in distances]
 
 
     def compute_sequence_idle_time_in_liters(self, i, j):
@@ -94,9 +112,12 @@ class DroneExtinguisher:
         Returns:
           int: the amount of time (measured in liters) that we are idle on the day   
         """
+
+        idle_time = self.liter_budget_per_day - np.sum(self.bags[i:j+1])- np.sum(self.travel_costs_in_liters[i:j+1])
+
+        return int(idle_time)
         
-        # TODO
-        raise NotImplementedError()
+
 
     def compute_idle_cost(self, i, j, idle_time_in_liters):
         """
@@ -105,7 +126,9 @@ class DroneExtinguisher:
         in the assignment description. 
         If transporting self.bags[i:j+1] is not possible within a day, we should return np.inf as cost. 
         Moreover, if self.bags[i:j+1] are the last bags that are transported on the final day, the idle cost is 0 
-        as the operation has been completed. In all other cases, we use the formula from the assignment text. 
+        as the operation has been completed. 
+        
+        In all other cases, we use the formula from the assignment text. 
 
         You may not need to use every argument of this function
 
@@ -116,11 +139,20 @@ class DroneExtinguisher:
         Returns
           - integer: the cost of being idle on a day corresponding to idle_time_in_liters
         """
+
+        idle_t = idle_time_in_liters
+        if idle_t < 0: return np.inf
         
-        # TODO
-        raise NotImplementedError()
+        #TODO is that the right implementation for "last bags transported on the final day"
+        if j==len(self.bags)-1: 
+            return 0
+        
+        idle_t = idle_t**3
+
+        return idle_t
     
-    def compute_sequence_usage_cost(self, i: int, j: int, k: int) -> float:
+    
+    def compute_sequence_usage_cost(self, i: int, j: int, k: int):
         """
         Function that computes and returns the cost of using drone k for self.bags[i:j+1], making use of
         self.usage_cost, which gives the cost for every bag-drone pair. 
@@ -132,12 +164,13 @@ class DroneExtinguisher:
         :param k: integer index
 
         Returns
-          - float: the cost of usign drone k for bags[i:j+1] 
+          - float: the cost of using drone k for bags[i:j+1] 
         """
-        
-        # TODO
-        raise NotImplementedError()
+        if self.correct_inputs == False: return None
 
+
+        usage_cost = sum(self.usage_cost[i:j+1,k])
+        return usage_cost
 
     def dynamic_programming(self):
         """
@@ -146,11 +179,30 @@ class DroneExtinguisher:
         In this function, we fill the memory structures self.idle_cost and self.optimal_cost making use of functions defined above. 
         This function does not return anything. 
         """
-        
-        # TODO
-        raise NotImplementedError()
+        if self.correct_inputs == False: return 
 
-    def lowest_cost(self) -> float:
+        self.optimal_cost[0,:]=0 
+
+        #Fill optimal cost columnwise (first all bags, then next drone)
+        for drone in range(self.num_drones):
+            for bag in range(self.num_bags):
+                #Calculate tuples of all possibilies of previous optimal cost, sequence usagecosts and sequence idle costs
+                candidates = [float(self.optimal_cost[begin][drone] + self.compute_sequence_usage_cost(begin,bag, drone) + self.compute_idle_cost(begin,bag,self.compute_sequence_idle_time_in_liters(begin,bag))) for begin in range(0,bag+1)]
+
+                #Find minimum candidate
+                minimum_candidate = min(candidates)
+
+                #If previous drone has lower cost store previous drone
+                if drone>0 and self.optimal_cost[bag+1,drone-1] < minimum_candidate:
+                    self.optimal_cost[bag+1][drone] = self.optimal_cost[bag+1,drone-1]
+
+                #Else store minimum_candidate as optimal cost
+                else: 
+                    self.optimal_cost[bag+1][drone] = minimum_candidate
+                    self.backtrace_memory[bag] = drone
+
+
+    def lowest_cost(self):
         """
         Returns the lowest cost at which we can empty the water bags to extinguish to forest fire. Inside of this function,
         you can assume that self.dynamic_progrmaming() has been called so that in this function, you can simply extract and return
@@ -159,12 +211,12 @@ class DroneExtinguisher:
         Returns:
           - float: the lowest cost
         """
-        
-        # TODO
-        raise NotImplementedError()
+        #TODO: what if last bag is not transported by last drone?? -> minimum of last row?? - Resolved: entry is overwritten by if condition, thus if previous drone has lower cost it is also written in field "right" from it
+        if self.correct_inputs == False: return None
 
+        return self.optimal_cost[-1,-1]
 
-    def backtrace_solution(self) -> typing.List[int]:
+    def backtrace_solution(self):
         """
         Returns the solution of how the lowest cost was obtained by using, for example, self.backtrace_memory (but feel free to do it your own way). 
         The solution is a tuple (leftmost indices, drone list) as described in the assignment text. Here, leftmost indices is a list 
@@ -178,6 +230,23 @@ class DroneExtinguisher:
             
         :return: A tuple (leftmost indices, drone list) as described above
         """
-        
-        # TODO
-        raise NotImplementedError()
+        if self.correct_inputs == False: return None
+
+        #Calculate tuples of all possibilies of previous optimal cost, sequence usagecosts and sequence idle costs
+        self.optimal_cost[0,:]=0 
+
+        leftmost_indices = []
+        previous_entry = -1
+
+        #Iteration through last drone
+        #This can be done since entries in last column also take entries from previous drones in case that previous drone has lower cost
+        #Search for point where cost does not get lower anymore, since then we reach the point when new day begins
+        for bag in range(1,self.num_bags+1):
+            if self.optimal_cost[bag,-1] >= previous_entry:
+                leftmost_indices.append(bag-1)
+            previous_entry = self.optimal_cost[bag,-1]
+
+        drone_list = list(self.backtrace_memory)
+
+        return (leftmost_indices, drone_list)
+
