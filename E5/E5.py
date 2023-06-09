@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 #Reorder negative and positive values
 def question1():
     A = [-1,4,-6,4,5,3,-4,5]
@@ -98,6 +99,33 @@ def question5DivideAndConquer():
     A=[3,-1,4,-8,2,-4,5,-10,10,-5,3,-24,7,-34,32,-345]
     return amount2(A, 0,len(A))
 
+#Question 7 closest pair
+def closest_pair(arr,left, right):
+    if right==left:
+        return np.inf
+    
+    mid = int((left+right)/2)
+    ld = closest_pair(arr,left,mid)
+    rd = closest_pair(arr,mid+1,right)
+    md = arr[mid+1]-arr[mid]
+    return np.min([ld, rd, md]) 
+
+def question7closestPair():
+    arr = [1.0,4.3,6.5,4.7,5.4,3.3,3.2,4.4,5.1]
+    sortarr = sorted(arr)
+    return closest_pair(sortarr, 0,len(sortarr)-1)
+
+def quesiton7nonrecursive():
+    arr = [1.0,4.3,6.5,4.7,5.4,3.3,3.2,4.4,5.1]
+    sortarr = sorted(arr)
+    minimum = sortarr[1]-sortarr[0]
+    for i in range(2,len(sortarr)):
+        tempdistance = sortarr[i]-sortarr[i-1]
+        if  tempdistance < minimum:
+            minimum = tempdistance
+    return minimum
+        
+
 
 
 
@@ -107,5 +135,9 @@ if __name__ == "__main__":
     print("Question 3: Smallest element: ", question3())
     print("Question 5: Number of pairs Brute Force: ", question5BruteForce())
     print("Question 5: Number of pairs DaC: ", question5DivideAndConquer())
+    print("Question 7: DivideAndConquer Closest Pair: ", question7closestPair())
+    print("Question 7: Non Recursive closest pair: ", question7closestPair())
+
+
 
 
