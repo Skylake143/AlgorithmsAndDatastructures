@@ -6,7 +6,7 @@ def question1():
     i = 0
     j = len(A)-1
     while(i<=j):
-        if A[i] < 0:
+        if A[i] < 0: #number negative
             i+=1
         else: 
             #Swap elements
@@ -124,6 +124,28 @@ def quesiton7nonrecursive():
         if  tempdistance < minimum:
             minimum = tempdistance
     return minimum
+
+
+global bitstringlist 
+
+#Generate all 2^n bitstrings of length n decrease by one
+def bitstringdecreasebyone(n):
+    global bitstringlist
+    if n==0:
+        print(*bitstringlist)
+       
+    else: 
+        bitstringlist[n-1]=str('0')
+        bitstringdecreasebyone(n-1)
+        bitstringlist[n-1]=str('1')
+        bitstringdecreasebyone(n-1)
+
+         
+def question10bitstring(n):
+    global bitstringlist
+    bitstringlist =np.empty(n, dtype=str)
+    bitstringdecreasebyone(n)
+
         
 
 
@@ -137,6 +159,9 @@ if __name__ == "__main__":
     print("Question 5: Number of pairs DaC: ", question5DivideAndConquer())
     print("Question 7: DivideAndConquer Closest Pair: ", question7closestPair())
     print("Question 7: Non Recursive closest pair: ", question7closestPair())
+    print("Question 10: Decrease by one Bitstrings: ")
+    question10bitstring(3)
+
 
 
 
